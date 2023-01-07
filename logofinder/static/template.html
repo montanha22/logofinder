@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Logo results</title>
+
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.1/js/bootstrap.min.js"
+            integrity="sha512-EKWWs1ZcA2ZY9lbLISPz8aGR2+L7JVYqBAYTq5AXgBkSjRSuQEGqWx8R1zAX16KdXPaCjOCaKE8MCpU0wcHlHA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.1/css/bootstrap.min.css"
+            integrity="sha512-Ez0cGzNzHR1tYAv56860NLspgUGuQw16GiOOp/I2LuTmpSK9xDXlgJz3XN4cnpXWDmkNBKXR/VDMTCnAaEooxA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+        <style>
+                img{
+                    max-width:120px;
+                    max-height:120px;
+                    border: 1px solid black;
+                }
+                img:hover{
+                    background-color: black;
+                }
+                body{
+                    background-color: lightgrey;
+                }
+                .company-name{
+                    padding-top: 100px;
+                    text-align: center;
+                }
+                .align-text-center{
+                    text-align: center;
+                }
+                .flex{
+                    display: flex;
+                    justify-content: space-between;
+                }
+
+                figure{
+                    display: table;
+                    width: 50%;
+                    margin:0;
+                }
+                  
+
+                  
+        </style>
+    </head>
+    <body>
+        <div class="container text-center">
+            <h1>Found logos</h1>
+            <div class="row row-cols-2">
+
+                {% for company in companies %}
+                <div class="col align-text-center">
+                    <h4 class="company-name"> {{company.name}} </h4>
+                    <div class="flex">
+                        {% for search in company.logo_searchs %}
+                        <figure>
+                            <img
+                                src="{{search.url}}"
+                                alt="Error"
+                                onerror="this.style.display='none';
+                                this.parentElement.style.display= 'none'">
+                            <figcaption style="text-align:center">{{search.crawler}}</figcaption>
+                        </figure>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </body>
+</html>
