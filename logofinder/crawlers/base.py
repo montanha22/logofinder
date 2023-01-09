@@ -1,5 +1,6 @@
 import abc
-from dataclasses import dataclass
+import logging
+from typing import Any
 from typing import Callable
 
 import requests
@@ -7,21 +8,34 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
+from logofinder.models import LogoSearchResult
+from logofinder.processors.base import CompanyDataProcessor
+
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36"
 }
 
 
-@dataclass
-class LogoSearchResult:
-    url: str
-    metadata: dict[str, str]
-
-
 class LogoCrawler(abc.ABC):
+    """Abstract class for crawlers suited for crawling company logos."""
+
     @abc.abstractmethod
-    def search_logo_url(self, company_name: str) -> LogoSearchResult | None:
+    def search_logo_url(self, data: Any) -> LogoSearchResult | None:
+        """crawls for company logo.
+        this methods takes a generic data (defined by each crawler) and
+        should return an `LogoSearchResult` object as response.
+        It can also return None if the crawler couldn't find
+        any logo. The method shoudn't raise any exception, if the crawler stops
+        unexpectedly it should log the error and return None."""
         pass
+
+    @abc.abstractproperty
+    def default_processor(self) -> CompanyDataProcessor:
+        pass
+
+    @property
+    def logger(self):
+        return logging.getLogger(f"crawlers.{self.__class__.__name__}")
 
 
 class SeleniumCrawler(LogoCrawler):

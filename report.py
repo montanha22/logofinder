@@ -10,7 +10,7 @@ from logofinder.helpers import render_logos_report
 def generate_report():
 
     dfs = []
-    for filepath in glob("results/*.csv"):
+    for filepath in glob("results/20230108*.csv"):
         df = pd.read_csv(filepath)
         dfs.append(df)
 

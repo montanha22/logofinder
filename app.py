@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from logofinder import crawl_logos
 from logofinder.crawlers.google import GoogleImagesCrawler
 from logofinder.crawlers.officialsite import OfficialWebsiteCrawler
+from logofinder.models import CompanyInfo
 
 app = FastAPI(title="Logofinder")
 
@@ -34,11 +35,12 @@ class GetLogosResponse:
 @app.get("/api/v0/get-logos-urls", response_model=list[GetLogosResponse], tags=["Logo"])
 def get_companies_logos_urls(names: str, crawler: Crawlers):
     names = [name.strip() for name in names.split(",")]
+    companies = [CompanyInfo(name=name) for name in names]
 
     crawler_ = crawlers_factories.get(crawler)()
     n_threads = n_threads_by_crawler.get(crawler)
 
-    logos_df = crawl_logos(crawler_, names, n_threads)
+    logos_df = crawl_logos(crawler=crawler_, companies=companies, n_threads=n_threads)
     logos_df = logos_df[["name", "url"]]
 
     return logos_df.to_dict("records")

@@ -1,16 +1,34 @@
-import logging
 import re
 from urllib.parse import urljoin
 from urllib.parse import urlparse
 
 from logofinder.crawlers.base import LogoSearchResult
 from logofinder.crawlers.base import RequestsCrawler
-
-logger = logging.getLogger(__name__)
+from logofinder.processors.search_by_name import SearchByNameProcessor
 
 
 class OfficialWebsiteCrawler(RequestsCrawler):
     TIMEOUT = 5
+
+    def search_logo_url(self, company_name: str) -> LogoSearchResult | None:
+        self.logger.info(f"crawling {company_name} logo")
+        try:
+            website = self._find_website(company_name)
+            url = self._find_website_logo(website)
+
+            parsed_url = urlparse(url)
+            if not parsed_url.scheme or not parsed_url.netloc:
+                url = urljoin(website, url)
+
+            return LogoSearchResult(url, {"company_website": website})
+
+        except Exception as e:
+            self.logger.error(f"uncaught error {e} when searching {company_name} logo")
+            return None
+
+    @property
+    def default_processor(self) -> SearchByNameProcessor:
+        return SearchByNameProcessor()
 
     def _find_website(self, company_name: str) -> str:
         soup = self._get_soup(
@@ -45,19 +63,3 @@ class OfficialWebsiteCrawler(RequestsCrawler):
             return
 
         return [img.attrs.get("src") for img in imgs][0]
-
-    def search_logo_url(self, company_name: str) -> LogoSearchResult | None:
-        logger.info(f"crawling {company_name} logo")
-        try:
-            website = self._find_website(company_name)
-            url = self._find_website_logo(website)
-
-            parsed_url = urlparse(url)
-            if not parsed_url.scheme or not parsed_url.netloc:
-                url = urljoin(website, url)
-
-            return LogoSearchResult(url, {"company_website": website})
-
-        except Exception as e:
-            logger.error(f"uncaught error {e} when searching {company_name} logo")
-            return None

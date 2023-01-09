@@ -1,6 +1,3 @@
-import asyncio
-import logging
-
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -8,12 +5,33 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from logofinder.crawlers.base import LogoSearchResult
 from logofinder.crawlers.base import SeleniumCrawler
-
-logger = logging.getLogger(__name__)
+from logofinder.processors.search_by_name import SearchByNameProcessor
 
 
 class GoogleImagesCrawler(SeleniumCrawler):
     _google_images_url = "https://www.google.com.br/imghp"
+
+    def search_logo_url(
+        self, company_name: str, aux_keyword: str = "logomarca"
+    ) -> LogoSearchResult | None:
+        self.logger.info(f"crawling {company_name} logo")
+
+        try:
+            driver = self._driver_factory()
+            url = self._search_first_image_url(
+                driver,
+                f"{company_name} {aux_keyword}",
+            )
+            driver.close()
+            return LogoSearchResult(url, {"aux_keyword": aux_keyword})
+
+        except Exception as e:
+            self.logger.error(f"uncaught error {e} when searching {company_name} logo")
+            return None
+
+    @property
+    def default_processor(self) -> SearchByNameProcessor:
+        return SearchByNameProcessor()
 
     def _search_first_image_url(self, driver: webdriver.Chrome, search_str: str) -> str:
 
@@ -49,21 +67,3 @@ class GoogleImagesCrawler(SeleniumCrawler):
             .get_attribute("src")
         )
         return url
-
-    def search_logo_url(
-        self, company_name: str, aux_keyword: str = "logomarca"
-    ) -> LogoSearchResult | None:
-        logger.info(f"crawling {company_name} logo")
-
-        try:
-            driver = self._driver_factory()
-            url = self._search_first_image_url(
-                driver,
-                f"{company_name} {aux_keyword}",
-            )
-            driver.close()
-            return LogoSearchResult(url, {"aux_keyword": aux_keyword})
-
-        except Exception as e:
-            logger.error(f"uncaught error {e} when searching {company_name} logo")
-            return None
