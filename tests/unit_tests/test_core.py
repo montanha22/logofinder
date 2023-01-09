@@ -27,7 +27,7 @@ class FakeProcessor:
 
 
 class FakeCrawler(LogoCrawler):
-    def __init__(self, raises: bool):
+    def __init__(self, raises: bool = False):
         self._raises = raises
 
     @property
