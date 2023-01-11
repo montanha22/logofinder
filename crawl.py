@@ -31,15 +31,15 @@ def main():
     now_ts = get_now_timestamp()
 
     google_crawler = GoogleImagesCrawler()
-    # website_crawler = OfficialWebsiteCrawler()
+    website_crawler = OfficialWebsiteCrawler()
 
-    google_df = crawl_logos(google_crawler, companies, n_threads=1, show_progress=True)
-    # website_df = crawl_logos(
-    #     website_crawler, companies, n_threads=20, show_progress=True
-    # )
+    google_df = crawl_logos(google_crawler, companies, n_threads=5, show_progress=True)
+    website_df = crawl_logos(
+        website_crawler, companies, n_threads=20, show_progress=True
+    )
 
     google_df.to_csv(f"results/{now_ts}_google_images.csv")
-    # website_df.to_csv(f"results/{now_ts}_official_site.csv")
+    website_df.to_csv(f"results/{now_ts}_official_site.csv")
 
 
 if __name__ == "__main__":
