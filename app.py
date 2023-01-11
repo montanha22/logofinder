@@ -29,11 +29,13 @@ n_threads_by_crawler = {
 @dataclass
 class GetLogosResponse:
     name: str
-    url: str
+    url: str | None
 
 
-@app.get("/api/v0/get-logos-urls", response_model=list[GetLogosResponse], tags=["Logo"])
-def get_companies_logos_urls(names: str, crawler: Crawlers):
+@app.get(
+    "/api/v0/get-logos-by-name", response_model=list[GetLogosResponse], tags=["Logo"]
+)
+def get_companies_logos_urls_by_name(names: str, crawler: Crawlers):
     names = [name.strip() for name in names.split(",")]
     companies = [CompanyInfo(name=name) for name in names]
 
